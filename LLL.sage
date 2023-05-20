@@ -1,6 +1,7 @@
 from typing import List
 from Cryptodome.Util.number import bytes_to_long, long_to_bytes
 from merkle import Merkle
+import time
 
 class Attack:
     def __init__(self, pub_key: List[int], modulus: int):
@@ -30,7 +31,6 @@ class Attack:
         L = M.LLL()
         pt = ""
         if L[0, -1] == 0:
-            print("Success")
             for c in L[0][:-2]:
                 if c > 0:
                     pt += "0"
@@ -47,10 +47,30 @@ class Attack:
         for c in ciphertext:
             plain += self.decrypt_one(c)
         
-        print(f"Plaintext: {plain}")
+        print(f"Derived Plaintext: {plain}")
 
-cipher = Merkle()
-ct = cipher.encrypt(b'hello')
-cipher.decrypt(ct)
-attack = Attack(cipher.b, cipher.q)
-attack.decrypt(ct)
+
+
+def attack(plaintext):
+    print("=============================")
+    print(f"Original plaintext:{plaintext}")
+    cipher = Merkle()
+    ct = cipher.encrypt(plaintext)
+    print("Attack starts")
+    start = time.time()
+    attack = Attack(cipher.b, cipher.q)
+    attack.decrypt(ct)
+    print("Attack done")
+    print(f"Time elapsed: {(time.time()-start)*1000}ms")
+    print("=============================")
+
+plaintext = b'hello'
+attack(plaintext)
+plaintext = b'hello'
+attack(plaintext)
+plaintext = b'abcdef'
+attack(plaintext)
+plaintext = b'abcdef'*10
+attack(plaintext)
+plaintext = b'KessokuBand'*10
+attack(plaintext)
